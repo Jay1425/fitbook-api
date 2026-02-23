@@ -17,8 +17,9 @@ class UserResponse(BaseModel):
     name: str
     email: EmailStr
 
-    class Config:
-        orm_mode = True
+    model_config = {
+    "from_attributes": True
+    }
 
 
 class Token(BaseModel):
@@ -44,8 +45,9 @@ class ClassResponse(BaseModel):
     instructor: str
     availableSlots: int
 
-    class Config:
-        orm_mode = True
+    model_config = {
+    "from_attributes": True
+    }
 
 
 # ======================
@@ -66,5 +68,11 @@ class BookingResponse(BaseModel):
     client_email: EmailStr
     booked_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {
+    "from_attributes": True
+    }
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
