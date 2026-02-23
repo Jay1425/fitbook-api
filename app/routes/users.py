@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models, schemas
 from app.auth import hash_password, verify_password, create_access_token
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
 
@@ -40,22 +41,28 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
 # ======================
 
 @router.post("/login", response_model=schemas.Token)
-def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
 
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+    db_user = db.query(models.User).filter(
+        models.User.email == form_data.username
+    ).first()
+
     if not db_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
         )
 
-    if not verify_password(user.password, db_user.hashed_password):
+    if not verify_password(form_data.password, db_user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
         )
 
-    access_token = create_access_token(data={"sub": db_user.id})
+    access_token = create_access_token(data={"sub": str(db_user.id)})
 
     return {
         "access_token": access_token,
