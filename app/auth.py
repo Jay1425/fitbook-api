@@ -13,7 +13,9 @@ from app import models
 # Security Config
 # ======================
 
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+SECRET_KEY = os.getenv('SECRET_KEY') or os.urandom(32).hex()
+if os.getenv('ENVIRONMENT', 'development').lower() == 'production' and not os.getenv('SECRET_KEY'):
+    raise RuntimeError('SECRET_KEY must be configured in production')
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
 
